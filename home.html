@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Password Panic: 40-Rule Chaos Edition</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #13151f;
+      color: #f8fafc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      background: #1e2235;
+      width: 100%;
+      max-width: 600px;
+      padding: 28px;
+      border-radius: 16px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.55);
+      border: 2px solid #2e344e;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      color: #38bdf8;
+    }
+
+    .stats {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .badge {
+      background: #2e344e;
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1rem;
+      color: #e2e8f0;
+    }
+
+    #timer-box {
+      color: #facc15;
+    }
+
+    #timer-box.urgent {
+      background: #7f1d1d;
+      color: #fca5a5;
+      animation: pulse 0.5s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.06); }
+    }
+
+    .input-group {
+      margin-bottom: 18px;
+    }
+
+    .label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-bottom: 6px;
+    }
+
+    #password-input {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 1.2rem;
+      border-radius: 10px;
+      border: 2px solid #475569;
+      background: #0f172a;
+      color: #ffffff;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    #password-input:focus {
+      border-color: #38bdf8;
+    }
+
+    #rules-list {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      margin-bottom: 22px;
+      max-height: 360px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .rule {
+      padding: 11px 14px;
+      border-radius: 8px;
+      font-size: 0.92rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s ease;
+      animation: slideDown 0.25s ease-out;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .rule.invalid {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+    }
+
+    .rule.valid {
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid #22c55e;
+      color: #86efac;
+    }
+
+    #submit-btn {
+      width: 100%;
+      padding: 15px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: #334155;
+      color: #64748b;
+      transition: all 0.2s;
+    }
+
+    #submit-btn.ready {
+      background: #22c55e;
+      color: #052e16;
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+    }
+
+    #submit-btn.ready:hover {
+      background: #16a34a;
+      transform: translateY(-2px);
+    }
+
+    #overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.94);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      padding: 20px;
+    }
+
+    .modal {
+      background: #1e2235;
+      padding: 35px;
+      border-radius: 16px;
+      max-width: 460px;
+      text-align: center;
+      border: 2px solid #38bdf8;
+    }
+
+    .modal h2 {
+      font-size: 1.9rem;
+      margin-bottom: 12px;
+      color: #38bdf8;
+    }
+
+    .modal p {
+      color: #cbd5e1;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+
+    .start-btn {
+      background: #38bdf8;
+      color: #0f172a;
+      border: none;
+      padding: 14px 30px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .start-btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="top-bar">
+      <h1>🔐 Password Panic</h1>
+      <div class="stats">
+        <div class="badge" id="char-count">Chars: 0</div>
+        <div class="badge" id="timer-box">Time: <span id="timer">60</span>s</div>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <div class="label-row">
+        <label for="password-input">Type Your Password:</label>
+        <span id="digit-sum-helper">Digit Sum: 0</span>
+      </div>
+      <input type="text" id="password-input" placeholder="Start typing fast..." autocomplete="off">
+    </div>
+
+    <div id="rules-list"></div>
+
+    <button id="submit-btn" disabled>Unlock All Rules First</button>
+  </div>
+
+  <div id="overlay">
+    <div class="modal">
+      <h2 id="modal-title">Password Panic</h2>
+      <p id="modal-desc">Every game pulls <strong>10 random rules</strong> from a pool of <strong>40 chaotic requirements</strong>—guaranteed 100% solvable. Beat the 60-second clock!</p>
+      <button class="start-btn" id="start-btn">Deal Random Rules</button>
+    </div>
+  </div>
+
+  <script>
+    const input = document.getElementById('password-input');
+    const rulesList = document.getElementById('rules-list');
+    const submitBtn = document.getElementById('submit-btn');
+    const timerDisplay = document.getElementById('timer');
+    const timerBox = document.getElementById('timer-box');
+    const charCountDisplay = document.getElementById('char-count');
+    const digitSumHelper = document.getElementById('digit-sum-helper');
+    const overlay = document.getElementById('overlay');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDesc = document.getElementById('modal-desc');
+    const startBtn = document.getElementById('start-btn');
+
+    const RULES_PER_GAME = 10;
+    let timeLeft = 60;
+    let roundRules = [];
+    let activeRules = [];
+    let gameInterval;
+    let ruleInterval;
+    let gameActive = false;
+
+    function getDigitSum(str) {
+      const digits = str.match(/\d/g);
+      if (!digits) return 0;
+      return digits.reduce((sum, d) => sum + parseInt(d, 10), 0);
+    }
+
+    // 40 Distinct Rules with conflict tags so two contradictory rules never spawn together
+    const rulePool = [
+      // Length & Spacing (Group: length)
+      { id: 'len8', group: 'length', text: 'Must be at least 8 characters long', check: (v) => v.length >= 8 },
+      { id: 'len12', group: 'length', text: 'Must be at least 12 characters long', check: (v) => v.length >= 12 },
+      { id: 'lenEven', group: 'length', text: 'Total character count must be an EVEN number', check: (v) => v.length > 0 && v.length % 2 === 0 },
+      { id: 'lenOdd', group: 'length', text: 'Total character count must be an ODD number', check: (v) => v.length % 2 === 1 },
+      { id: 'noSpaces', group: 'space', text: 'Cannot contain any spaces', check: (v) => v.length > 0 && !/\s/.test(v) },
+      { id: 'hasSpace', group: 'space', text: 'Must include at least one space', check: (v) => /\s/.test(v) },
+
+      // Case & Letters
+      { id: 'twoUpper', group: 'case', text: 'Must contain at least 2 UPPERCASE letters', check: (v) => (v.match(/[A-Z]/g) || []).length >= 2 },
+      { id: 'threeLower', group: 'case', text: 'Must contain at least 3 lowercase letters', check: (v) => (v.match(/[a-z]/g) || []).length >= 3 },
+      { id: 'noZ', group: 'ban', text: 'Cannot contain the letter "Z" or "z"', check: (v) => !/z/i.test(v) },
+      { id: 'noQ', group: 'ban', text: 'Cannot contain the letter "Q" or "q"', check: (v) => !/q/i.test(v) },
+      { id: 'doubleLetter', group: 'pattern', text: 'Must contain a doubled letter (like "oo", "tt", or "ee")', check: (v) => /([a-zA-Z])\1/.test(v) },
+      { id: 'startsLetter', group: 'start', text: 'Must start with a letter (A-Z)', check: (v) => /^[a-zA-Z]/.test(v) },
+
+      // Numbers & Math (Group: math)
+      { id: 'sum10', group: 'math', text: 'All digits in your password must add up to 10', check: (v) => getDigitSum(v) === 10 },
+      { id: 'sum15', group: 'math', text: 'All digits in your password must add up to 15', check: (v) => getDigitSum(v) === 15 },
+      { id: 'sum20', group: 'math', text: 'All digits in your password must add up to 20', check: (v) => getDigitSum(v) === 20 },
+      { id: 'hasZero', group: 'digit', text: 'Must include the number 0', check: (v) => /0/.test(v) },
+      { id: 'threeDigits', group: 'digit', text: 'Must contain at least 3 numbers', check: (v) => (v.match(/\d/g) || []).length >= 3 },
+      { id: 'year2026', group: 'math', text: 'Must include the current year (2026)', check: (v) => v.includes('2026') },
+      { id: 'lucky7', group: 'digit', text: 'Must contain the lucky number 7', check: (v) => /7/.test(v) },
+      { id: 'no123', group: 'ban', text: 'Cannot contain "123" in a row', check: (v) => !v.includes('123') },
+
+      // Symbols & Punctuation (Group: symbol / end)
+      { id: 'twoSymbols', group: 'symbol', text: 'Must contain at least 2 special symbols (!@#$%^&*)', check: (v) => (v.match(/[!@#$%^&*]/g) || []).length >= 2 },
+      { id: 'hasAt', group: 'symbol', text: 'Must include an @ symbol', check: (v) => v.includes('@') },
+      { id: 'hasDollar', group: 'symbol', text: 'Must include a $ sign', check: (v) => v.includes('$') },
+      { id: 'hasHash', group: 'symbol', text: 'Must include a # hashtag', check: (v) => v.includes('#') },
+      { id: 'endBang', group: 'end', text: 'Must end with an exclamation mark (!)', check: (v) => v.endsWith('!') },
+      { id: 'endQuestion', group: 'end', text: 'Must end with a question mark (?)', check: (v) => v.endsWith('?') },
+      { id: 'wrapBrackets', group: 'wrap', text: 'Must contain matching parentheses () or brackets []', check: (v) => /(\(.*\)|\[.*\])/.test(v) },
+      // Fun Words & Categories (Group: word)
+      { id: 'color', group: 'word', text: 'Must include a color (red, blue, green, gold, or pink)', check: (v) => /(red|blue|green|gold|pink)/i.test(v) },
+      { id: 'animal', group: 'word', text: 'Must include an animal (cat, dog, fox, owl, or bear)', check: (v) => /(cat|dog|fox|owl|bear)/i.test(v) },
+      { id: 'food', group: 'word', text: 'Must include a food (pizza, taco, cake, apple, or rice)', check: (v) => /(pizza|taco|cake|apple|rice)/i.test(v) },
+      { id: 'planet', group: 'word', text: 'Must include a planet (mars, venus, earth, or saturn)', check: (v) => /(mars|venus|earth|saturn)/i.test(v) },
+      { id: 'day', group: 'word', text: 'Must include a day of the week (mon, tue, wed, thu, fri, sat, sun)', check: (v) => /(mon|tue|wed|thu|fri|sat|sun)/i.test(v) },
+      { id: 'roman', group: 'roman', text: 'Must contain an uppercase Roman numeral (I, V, X, L, or C)', check: (v) => /[IVXLC]/.test(v) },
+      { id: 'direction', group: 'word', text: 'Must include a direction (up, down, left, or right)', check: (v) => /(up|down|left|right)/i.test(v) },
+      { id: 'element', group: 'word', text: 'Must include an element (fire, water, air, or earth)', check: (v) => /(fire|water|air|earth)/i.test(v) },
+      // Quirky Structural Rules
+      { id: 'noPassword', group: 'ban', text: 'Cannot contain the word "password"', check: (v) => !/password/i.test(v) },
+      { id: 'hasMathOp', group: 'symbol', text: 'Must contain a math operator (+, -, *, or =)', check: (v) => /[+\-*]/.test(v) || v.includes('=') },
+      { id: 'hasUnderscore', group: 'symbol', text: 'Must include an underscore (_)', check: (v) => v.includes('_') },
+      { id: 'twoVowels', group: 'vowel', text: 'Must contain at least 3 vowels (a, e, i, o, u)', check: (v) => (v.match(/[aeiou]/gi) || []).length >= 3 },
+      { id: 'hasSlash', group: 'symbol', text: 'Must include a forward slash (/)', check: (v) => v.includes('/') }
+    ];
+    function pickSolvableRules() {
+      // Shuffle full 40-rule pool
+      const shuffled = [...rulePool].sort(() => Math.random() - 0.5);
+      const selected = [];
+      const usedGroups = new Set();
+      // Groups where only 1 rule should be picked per round to prevent contradictions
+      const exclusiveGroups = new Set(['length', 'space', 'math', 'end', 'word']);
+      for (const rule of shuffled) {
+        if (selected.length >= RULES_PER_GAME) break;
+        if (exclusiveGroups.has(rule.group) && usedGroups.has(rule.group)) {
+          continue;
+        }
+        selected.push(rule);
+        usedGroups.add(rule.group);
+      }
+      return selected;
+    }
+    function validateAll() {
+      if (!gameActive) return;
+      const val = input.value;
+      charCountDisplay.textContent = `Chars: ${val.length}`;
+      digitSumHelper.textContent = `Digit Sum: ${getDigitSum(val)}`;
+      let allPassed = true;
+      activeRules.forEach((rule) => {
+        const ruleEl = document.getElementById(`rule-${rule.id}`);
+        const passed = rule.check(val);
+        if (passed) {
+          ruleEl.className = 'rule valid';
+          ruleEl.innerHTML = `<span>✅</span> <span>${rule.text}</span>`;
+        } else {
+          ruleEl.className = 'rule invalid';
+          ruleEl.innerHTML = `<span>❌</span> <span>${rule.text}</span>`;
+          allPassed = false;
+        }
+      });
+      if (allPassed && activeRules.length === roundRules.length) {
+        submitBtn.disabled = false;
+        submitBtn.classList.add('ready');
+        submitBtn.textContent = 'Create Account! (Click Now!)';
+      } else {
+        submitBtn.disabled = true;
+        submitBtn.classList.remove('ready');
+        submitBtn.textContent = activeRules.length < roundRules.length
+          ? `Dealing Rules (${activeRules.length}/${roundRules.length})...`
+          : 'Fix the red rules above!';
+      }
+    }
+    function addNextRule() {
+      if (activeRules.length >= roundRules.length) {
+        clearInterval(ruleInterval);
+        return;
+      }
+      const nextRule = roundRules[activeRules.length];
+      activeRules.push(nextRule);
+      const ruleEl = document.createElement('div');
+      ruleEl.id = `rule-${nextRule.id}`;
+      ruleEl.className = 'rule invalid';
+      rulesList.prepend(ruleEl);
+      validateAll();
+    }
+    function startGame() {
+      timeLeft = 60;
+      roundRules = pickSolvableRules();
+      activeRules = [];
+      gameActive = true;
+      input.value = '';
+      rulesList.innerHTML = '';
+      timerDisplay.textContent = timeLeft;
+      timerBox.classList.remove('urgent');
+      overlay.style.display = 'none';
+      input.focus();
+      // Deal first 2 rules immediately, then 1 every 3.5 seconds
+      addNextRule();
+      addNextRule();
+      ruleInterval = setInterval(addNextRule, 3500);
+      gameInterval = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = timeLeft;
+        if (timeLeft <= 12) {
+          timerBox.classList.add('urgent');
+        }
+        if (timeLeft <= 0) {
+          endGame(false);
+        }
+      }, 1000);
+    }
+    function endGame(won) {
+      gameActive = false;
+      clearInterval(gameInterval);
+      clearInterval(ruleInterval);
+      if (won) {
+        modalTitle.textContent = '🎉 Account Created!';
+        modalTitle.style.color = '#4ade80';
+        modalDesc.innerHTML = `You cleared all 10 random rules with <strong>${timeLeft}s</strong> left!<br><br>Winning password:<br><strong>${input.value}</strong>`;
+      } else {
+        modalTitle.textContent = '⏰ Session Timed Out!';
+        modalTitle.style.color = '#f87171';
+        modalDesc.textContent = 'The security system locked you out before you could beat all 10 rules.';
+      }
+      startBtn.textContent = 'Play With New Random Rules';
+      overlay.style.display = 'flex';
+    }
+    input.addEventListener('input', validateAll);
+    submitBtn.addEventListener('click', () => {
+      if (!submitBtn.disabled && gameActive) {
+        endGame(true);
+      }
+    });
+    startBtn.addEventListener('click', startGame);
+  </script>
+</body>
+</html>
