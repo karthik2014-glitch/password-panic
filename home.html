@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Password Panic: 40-Rule Chaos Edition</title>
+  <title>Password Panic | Glitched By Design</title>
   <style>
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     body {
       background-color: #13151f;
       color: #f8fafc;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -22,6 +22,126 @@
       padding: 20px;
     }
 
+    /* ================= STUDIO SPLASH SCREEN ================= */
+    #studio-splash {
+      position: fixed;
+      inset: 0;
+      background: #0b0c10;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 99999;
+      font-family: 'Courier New', Courier, monospace;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+
+    #studio-splash.fade-out {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    #studio-splash::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%);
+      background-size: 100% 4px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .logo-wrapper {
+      position: relative;
+      text-align: center;
+      z-index: 3;
+    }
+
+    .glitch-title {
+      font-size: clamp(2rem, 6vw, 4rem);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      position: relative;
+      color: #ffffff;
+      animation: mainShake 2.5s infinite;
+    }
+
+    .glitch-title::before,
+    .glitch-title::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #0b0c10;
+    }
+
+    .glitch-title::before {
+      left: 3px;
+      text-shadow: -2px 0 #ff0055;
+      animation: glitchSlice1 2s infinite linear alternate-reverse;
+    }
+
+    .glitch-title::after {
+      left: -3px;
+      text-shadow: -2px 0 #00f0ff;
+      animation: glitchSlice2 1.7s infinite linear alternate-reverse;
+    }
+
+    .tagline {
+      margin-top: 14px;
+      font-size: 0.95rem;
+      letter-spacing: 5px;
+      color: #38bdf8;
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fadeInTagline 0.6s ease forwards 0.6s;
+    }
+
+    .boot-bar {
+      width: 260px;
+      height: 4px;
+      background: #1e293b;
+      margin: 22px auto 0;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .boot-progress {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff0055, #00f0ff);
+      animation: loadBar 2.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes loadBar {
+      0% { width: 0%; }
+      40% { width: 65%; }
+      55% { width: 61%; }
+      100% { width: 100%; }
+    }
+
+    @keyframes fadeInTagline { to { opacity: 1; } }
+    @keyframes mainShake {
+      0%, 92%, 100% { transform: translate(0, 0); }
+      94% { transform: translate(-4px, 2px); }
+      96% { transform: translate(4px, -2px); }
+      98% { transform: translate(-2px, -1px); }
+    }
+    @keyframes glitchSlice1 {
+      0% { clip-path: inset(15% 0 70% 0); }
+      50% { clip-path: inset(65% 0 10% 0); }
+      100% { clip-path: inset(30% 0 45% 0); }
+    }
+    @keyframes glitchSlice2 {
+      0% { clip-path: inset(70% 0 15% 0); }
+      50% { clip-path: inset(10% 0 65% 0); }
+      100% { clip-path: inset(50% 0 25% 0); }
+    }
+
+    /* ================= GAME UI ================= */
     .container {
       background: #1e2235;
       width: 100%;
@@ -215,6 +335,15 @@
 </head>
 <body>
 
+  <!-- GLITCHED BY DESIGN SPLASH -->
+  <div id="studio-splash">
+    <div class="logo-wrapper">
+      <div class="glitch-title" data-text="GLITCHED BY DESIGN">GLITCHED BY DESIGN</div>
+      <div class="tagline">It's not a bug. It's a feature.</div>
+      <div class="boot-bar"><div class="boot-progress"></div></div>
+    </div>
+  </div>
+
   <div class="container">
     <div class="top-bar">
       <h1>🔐 Password Panic</h1>
@@ -246,6 +375,12 @@
   </div>
 
   <script>
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('studio-splash').classList.add('fade-out');
+      }, 2600);
+    });
+
     const input = document.getElementById('password-input');
     const rulesList = document.getElementById('rules-list');
     const submitBtn = document.getElementById('submit-btn');
@@ -269,170 +404,164 @@
     function getDigitSum(str) {
       const digits = str.match(/\d/g);
       if (!digits) return 0;
-      return digits.reduce((sum, d) => sum + parseInt(d, 10), 0);
-    }
+return digits.reduce((sum, d) => sum + parseInt(d, 10), 0);
+}
+const rulePool = [
+{ id: 'len8', group: 'length', text: 'Must be at least 8 characters long', check: (v) => v.length >= 8 },
+{ id: 'len12', group: 'length', text: 'Must be at least 12 characters long', check: (v) => v.length >= 12 },
+{ id: 'lenEven', group: 'length', text: 'Total character count must be an EVEN number', check: (v) => v.length > 0 && v.length % 2 === 0 },
+{ id: 'lenOdd', group: 'length', text: 'Total character count must be an ODD number', check: (v) => v.length % 2 === 1 },
+{ id: 'noSpaces', group: 'space', text: 'Cannot contain any spaces', check: (v) => v.length > 0 && !/\s/.test(v) },
+{ id: 'hasSpace', group: 'space', text: 'Must include at least one space', check: (v) => /\s/.test(v) },
+{ id: 'twoUpper', group: 'case', text: 'Must contain at least 2 UPPERCASE letters', check: (v) => (v.match(/[A-Z]/g) || []).length >= 2 },
+{ id: 'threeLower', group: 'case', text: 'Must contain at least 3 lowercase letters', check: (v) => (v.match(/[a-z]/g) || []).length >= 3 },
+{ id: 'noZ', group: 'ban', text: 'Cannot contain the letter "Z" or "z"', check: (v) => !/z/i.test(v) },
+{ id: 'noQ', group: 'ban', text: 'Cannot contain the letter "Q" or "q"', check: (v) => !/q/i.test(v) },
+{ id: 'doubleLetter', group: 'pattern', text: 'Must contain a doubled letter (like "oo", "tt", or "ee")', check: (v) => /([a-zA-Z])\1/.test(v) },
+{ id: 'startsLetter', group: 'start', text: 'Must start with a letter (A-Z)', check: (v) => /^[a-zA-Z]/.test(v) },
+{ id: 'sum10', group: 'math', text: 'All digits in your password must add up to 10', check: (v) => getDigitSum(v) === 10 },
+{ id: 'sum15', group: 'math', text: 'All digits in your password must add up to 15', check: (v) => getDigitSum(v) === 15 },
+{ id: 'sum20', group: 'math', text: 'All digits in your password must add up to 20', check: (v) => getDigitSum(v) === 20 },
+{ id: 'hasZero', group: 'digit', text: 'Must include the number 0', check: (v) => /0/.test(v) },
+{ id: 'threeDigits', group: 'digit', text: 'Must contain at least 3 numbers', check: (v) => (v.match(/\d/g) || []).length >= 3 },
+{ id: 'year2026', group: 'math', text: 'Must include the current year (2026)', check: (v) => v.includes('2026') },
+{ id: 'lucky7', group: 'digit', text: 'Must contain the lucky number 7', check: (v) => /7/.test(v) },
+{ id: 'no123', group: 'ban', text: 'Cannot contain "123" in a row', check: (v) => !v.includes('123') },
+{ id: 'twoSymbols', group: 'symbol', text: 'Must contain at least 2 special symbols (!@#$%^&)', check: (v) => (v.match(/[!@#$%^&]/g) || []).length >= 2 },
+{ id: 'hasAt', group: 'symbol', text: 'Must include an @ symbol', check: (v) => v.includes('@') },
+{ id: 'hasDollar', group: 'symbol', text: 'Must include a $ sign', check: (v) => v.includes('$') },
+{ id: 'hasHash', group: 'symbol', text: 'Must include a # hashtag', check: (v) => v.includes('#') },
+{ id: 'endBang', group: 'end', text: 'Must end with an exclamation mark (!)', check: (v) => v.endsWith('!') },
+{ id: 'endQuestion', group: 'end', text: 'Must end with a question mark (?)', check: (v) => v.endsWith('?') },
+{ id: 'wrapBrackets', group: 'wrap', text: 'Must contain matching parentheses () or brackets []', check: (v) => /(\(.*\)|\(.*\))/.test(v) },
+{ id: 'color', group: 'word', text: 'Must include a color (red, blue, green, gold, or pink)', check: (v) => /(red|blue|green|gold|pink)/i.test(v) },
+{ id: 'animal', group: 'word', text: 'Must include an animal (cat, dog, fox, owl, or bear)', check: (v) => /(cat|dog|fox|owl|bear)/i.test(v) },
+{ id: 'food', group: 'word', text: 'Must include a food (pizza, taco, cake, apple, or rice)', check: (v) => /(pizza|taco|cake|apple|rice)/i.test(v) },
+{ id: 'planet', group: 'word', text: 'Must include a planet (mars, venus, earth, or saturn)', check: (v) => /(mars|venus|earth|saturn)/i.test(v) },
+{ id: 'day', group: 'word', text: 'Must include a day of the week (mon, tue, wed, thu, fri, sat, sun)', check: (v) => /(mon|tue|wed|thu|fri|sat|sun)/i.test(v) },
+{ id: 'roman', group: 'roman', text: 'Must contain an uppercase Roman numeral (I, V, X, L, or C)', check: (v) => /[IVXLC]/.test(v) },
+{ id: 'direction', group: 'word', text: 'Must include a direction (up, down, left, or right)', check: (v) => /(up|down|left|right)/i.test(v) },
+{ id: 'element', group: 'word', text: 'Must include an element (fire, water, air, or earth)', check: (v) => /(fire|water|air|earth)/i.test(v) },
+{ id: 'noPassword', group: 'ban', text: 'Cannot contain the word "password"', check: (v) => !/password/i.test(v) },
+{ id: 'hasMathOp', group: 'symbol', text: 'Must contain a math operator (+, -, , or =)', check: (v) => /[+-=]/.test(v) },
+{ id: 'hasUnderscore', group: 'symbol', text: 'Must include an underscore ()', check: (v) => v.includes('') },
+{ id: 'twoVowels', group: 'vowel', text: 'Must contain at least 3 vowels (a, e, i, o, u)', check: (v) => (v.match(/[aeiou]/gi) || []).length >= 3 },
+{ id: 'hasSlash', group: 'symbol', text: 'Must include a forward slash (/)', check: (v) => v.includes('/') }
+];
+function pickSolvableRules() {
+const shuffled = [...rulePool].sort(() => Math.random() - 0.5);
+const selected = [];
+const usedGroups = new Set();
+const exclusiveGroups = new Set(['length', 'space', 'math', 'end', 'word']);
+for (const rule of shuffled) {
+if (selected.length >= RULES_PER_GAME) break;
+if (exclusiveGroups.has(rule.group) && usedGroups.has(rule.group)) {
+continue;
+}
+selected.push(rule);
+usedGroups.add(rule.group);
+}
+return selected;
+}
+function validateAll() {
+if (!gameActive) return;
+const val = input.value;
+charCountDisplay.textContent = `Chars: ${val.length}`;
+digitSumHelper.textContent = `Digit Sum: ${getDigitSum(val)}`;
+let allPassed = true;
+activeRules.forEach((rule) => {
+const ruleEl = document.getElementById(`rule-${rule.id}`);
+const passed = rule.check(val);
+if (passed) {
+ruleEl.className = 'rule valid';
+ruleEl.innerHTML = `<span>✅</span> <span>${rule.text}</span>`;
+} else {
+ruleEl.className = 'rule invalid';
+ruleEl.innerHTML = `<span>❌</span> <span>${rule.text}</span>`;
+allPassed = false;
+}
+});
+if (allPassed && activeRules.length === roundRules.length) {
+submitBtn.disabled = false;
+submitBtn.classList.add('ready');
+submitBtn.textContent = 'Create Account! (Click Now!)';
+} else {
+submitBtn.disabled = true;
+submitBtn.classList.remove('ready');
+submitBtn.textContent = activeRules.length < roundRules.length
+? `Dealing Rules (${activeRules.length}/${roundRules.length})...`
+: 'Fix the red rules above!';
+}
+}
+function addNextRule() {
+if (activeRules.length >= roundRules.length) {
+clearInterval(ruleInterval);
+return;
+}
+const nextRule = roundRules[activeRules.length];
+activeRules.push(nextRule);
+const ruleEl = document.createElement('div');
+ruleEl.id = `rule-${nextRule.id}`;
+ruleEl.className = 'rule invalid';
+rulesList.prepend(ruleEl);
+validateAll();
+}
+function startGame() {
+timeLeft = 60;
+roundRules = pickSolvableRules();
+activeRules = [];
+gameActive = true;
+input.value = '';
+rulesList.innerHTML = '';
+timerDisplay.textContent = timeLeft;
+timerBox.classList.remove('urgent');
+overlay.style.display = 'none';
+input.focus();
+addNextRule();
+addNextRule();
+ruleInterval = setInterval(addNextRule, 3500);
+gameInterval = setInterval(() => {
+timeLeft--;
+timerDisplay.textContent = timeLeft;
+if (timeLeft <= 12) {
+timerBox.classList.add('urgent');
+}
+if (timeLeft <= 0) {
+endGame(false);
+}
+}, 1000);
+}
+function endGame(won) {
+gameActive = false;
+clearInterval(gameInterval);
+clearInterval(ruleInterval);
+if (won) {
+modalTitle.textContent = '🎉 Account Created!';
+modalTitle.style.color = '#4ade80';
+modalDesc.innerHTML = `You
+d all 10 random rules with <strong>${timeLeft}s</strong> left!<br><br>Winning password:<br><strong>${input.value}</strong><br><br><em>Glitched By Design</em>`;
+} else {
+modalTitle.textContent = '⏰ Session Timed Out!';
+modalTitle.style.color = '#f87171';
+modalDesc.innerHTML = `The security system locked you out before you could beat all 10 rules.<br><br><em>Glitched By Design</em>`;
+}
+startBtn.textContent = 'Play With New Random Rules';
+overlay.style.display = 'flex';
+}
+input.addEventListener('input', validateAll);
+submitBtn.addEventListener('click', () => {
+if (!submitBtn.disabled && gameActive) {
+endGame(true);
+}
+});
+startBtn.addEventListener('click', startGame);
 
-    // 40 Distinct Rules with conflict tags so two contradictory rules never spawn together
-    const rulePool = [
-      // Length & Spacing (Group: length)
-      { id: 'len8', group: 'length', text: 'Must be at least 8 characters long', check: (v) => v.length >= 8 },
-      { id: 'len12', group: 'length', text: 'Must be at least 12 characters long', check: (v) => v.length >= 12 },
-      { id: 'lenEven', group: 'length', text: 'Total character count must be an EVEN number', check: (v) => v.length > 0 && v.length % 2 === 0 },
-      { id: 'lenOdd', group: 'length', text: 'Total character count must be an ODD number', check: (v) => v.length % 2 === 1 },
-      { id: 'noSpaces', group: 'space', text: 'Cannot contain any spaces', check: (v) => v.length > 0 && !/\s/.test(v) },
-      { id: 'hasSpace', group: 'space', text: 'Must include at least one space', check: (v) => /\s/.test(v) },
 
-      // Case & Letters
-      { id: 'twoUpper', group: 'case', text: 'Must contain at least 2 UPPERCASE letters', check: (v) => (v.match(/[A-Z]/g) || []).length >= 2 },
-      { id: 'threeLower', group: 'case', text: 'Must contain at least 3 lowercase letters', check: (v) => (v.match(/[a-z]/g) || []).length >= 3 },
-      { id: 'noZ', group: 'ban', text: 'Cannot contain the letter "Z" or "z"', check: (v) => !/z/i.test(v) },
-      { id: 'noQ', group: 'ban', text: 'Cannot contain the letter "Q" or "q"', check: (v) => !/q/i.test(v) },
-      { id: 'doubleLetter', group: 'pattern', text: 'Must contain a doubled letter (like "oo", "tt", or "ee")', check: (v) => /([a-zA-Z])\1/.test(v) },
-      { id: 'startsLetter', group: 'start', text: 'Must start with a letter (A-Z)', check: (v) => /^[a-zA-Z]/.test(v) },
 
-      // Numbers & Math (Group: math)
-      { id: 'sum10', group: 'math', text: 'All digits in your password must add up to 10', check: (v) => getDigitSum(v) === 10 },
-      { id: 'sum15', group: 'math', text: 'All digits in your password must add up to 15', check: (v) => getDigitSum(v) === 15 },
-      { id: 'sum20', group: 'math', text: 'All digits in your password must add up to 20', check: (v) => getDigitSum(v) === 20 },
-      { id: 'hasZero', group: 'digit', text: 'Must include the number 0', check: (v) => /0/.test(v) },
-      { id: 'threeDigits', group: 'digit', text: 'Must contain at least 3 numbers', check: (v) => (v.match(/\d/g) || []).length >= 3 },
-      { id: 'year2026', group: 'math', text: 'Must include the current year (2026)', check: (v) => v.includes('2026') },
-      { id: 'lucky7', group: 'digit', text: 'Must contain the lucky number 7', check: (v) => /7/.test(v) },
-      { id: 'no123', group: 'ban', text: 'Cannot contain "123" in a row', check: (v) => !v.includes('123') },
+<FollowUp>
+Want me to build an **official Glitched By Design Arcade Launcher** (`index.html`) next so you can put all three `.html` files in the same folder and launch any of them from one main studio menu?
+</FollowUp>
 
-      // Symbols & Punctuation (Group: symbol / end)
-      { id: 'twoSymbols', group: 'symbol', text: 'Must contain at least 2 special symbols (!@#$%^&*)', check: (v) => (v.match(/[!@#$%^&*]/g) || []).length >= 2 },
-      { id: 'hasAt', group: 'symbol', text: 'Must include an @ symbol', check: (v) => v.includes('@') },
-      { id: 'hasDollar', group: 'symbol', text: 'Must include a $ sign', check: (v) => v.includes('$') },
-      { id: 'hasHash', group: 'symbol', text: 'Must include a # hashtag', check: (v) => v.includes('#') },
-      { id: 'endBang', group: 'end', text: 'Must end with an exclamation mark (!)', check: (v) => v.endsWith('!') },
-      { id: 'endQuestion', group: 'end', text: 'Must end with a question mark (?)', check: (v) => v.endsWith('?') },
-      { id: 'wrapBrackets', group: 'wrap', text: 'Must contain matching parentheses () or brackets []', check: (v) => /(\(.*\)|\[.*\])/.test(v) },
-      // Fun Words & Categories (Group: word)
-      { id: 'color', group: 'word', text: 'Must include a color (red, blue, green, gold, or pink)', check: (v) => /(red|blue|green|gold|pink)/i.test(v) },
-      { id: 'animal', group: 'word', text: 'Must include an animal (cat, dog, fox, owl, or bear)', check: (v) => /(cat|dog|fox|owl|bear)/i.test(v) },
-      { id: 'food', group: 'word', text: 'Must include a food (pizza, taco, cake, apple, or rice)', check: (v) => /(pizza|taco|cake|apple|rice)/i.test(v) },
-      { id: 'planet', group: 'word', text: 'Must include a planet (mars, venus, earth, or saturn)', check: (v) => /(mars|venus|earth|saturn)/i.test(v) },
-      { id: 'day', group: 'word', text: 'Must include a day of the week (mon, tue, wed, thu, fri, sat, sun)', check: (v) => /(mon|tue|wed|thu|fri|sat|sun)/i.test(v) },
-      { id: 'roman', group: 'roman', text: 'Must contain an uppercase Roman numeral (I, V, X, L, or C)', check: (v) => /[IVXLC]/.test(v) },
-      { id: 'direction', group: 'word', text: 'Must include a direction (up, down, left, or right)', check: (v) => /(up|down|left|right)/i.test(v) },
-      { id: 'element', group: 'word', text: 'Must include an element (fire, water, air, or earth)', check: (v) => /(fire|water|air|earth)/i.test(v) },
-      // Quirky Structural Rules
-      { id: 'noPassword', group: 'ban', text: 'Cannot contain the word "password"', check: (v) => !/password/i.test(v) },
-      { id: 'hasMathOp', group: 'symbol', text: 'Must contain a math operator (+, -, *, or =)', check: (v) => /[+\-*]/.test(v) || v.includes('=') },
-      { id: 'hasUnderscore', group: 'symbol', text: 'Must include an underscore (_)', check: (v) => v.includes('_') },
-      { id: 'twoVowels', group: 'vowel', text: 'Must contain at least 3 vowels (a, e, i, o, u)', check: (v) => (v.match(/[aeiou]/gi) || []).length >= 3 },
-      { id: 'hasSlash', group: 'symbol', text: 'Must include a forward slash (/)', check: (v) => v.includes('/') }
-    ];
-    function pickSolvableRules() {
-      // Shuffle full 40-rule pool
-      const shuffled = [...rulePool].sort(() => Math.random() - 0.5);
-      const selected = [];
-      const usedGroups = new Set();
-      // Groups where only 1 rule should be picked per round to prevent contradictions
-      const exclusiveGroups = new Set(['length', 'space', 'math', 'end', 'word']);
-      for (const rule of shuffled) {
-        if (selected.length >= RULES_PER_GAME) break;
-        if (exclusiveGroups.has(rule.group) && usedGroups.has(rule.group)) {
-          continue;
-        }
-        selected.push(rule);
-        usedGroups.add(rule.group);
-      }
-      return selected;
-    }
-    function validateAll() {
-      if (!gameActive) return;
-      const val = input.value;
-      charCountDisplay.textContent = `Chars: ${val.length}`;
-      digitSumHelper.textContent = `Digit Sum: ${getDigitSum(val)}`;
-      let allPassed = true;
-      activeRules.forEach((rule) => {
-        const ruleEl = document.getElementById(`rule-${rule.id}`);
-        const passed = rule.check(val);
-        if (passed) {
-          ruleEl.className = 'rule valid';
-          ruleEl.innerHTML = `<span>✅</span> <span>${rule.text}</span>`;
-        } else {
-          ruleEl.className = 'rule invalid';
-          ruleEl.innerHTML = `<span>❌</span> <span>${rule.text}</span>`;
-          allPassed = false;
-        }
-      });
-      if (allPassed && activeRules.length === roundRules.length) {
-        submitBtn.disabled = false;
-        submitBtn.classList.add('ready');
-        submitBtn.textContent = 'Create Account! (Click Now!)';
-      } else {
-        submitBtn.disabled = true;
-        submitBtn.classList.remove('ready');
-        submitBtn.textContent = activeRules.length < roundRules.length
-          ? `Dealing Rules (${activeRules.length}/${roundRules.length})...`
-          : 'Fix the red rules above!';
-      }
-    }
-    function addNextRule() {
-      if (activeRules.length >= roundRules.length) {
-        clearInterval(ruleInterval);
-        return;
-      }
-      const nextRule = roundRules[activeRules.length];
-      activeRules.push(nextRule);
-      const ruleEl = document.createElement('div');
-      ruleEl.id = `rule-${nextRule.id}`;
-      ruleEl.className = 'rule invalid';
-      rulesList.prepend(ruleEl);
-      validateAll();
-    }
-    function startGame() {
-      timeLeft = 60;
-      roundRules = pickSolvableRules();
-      activeRules = [];
-      gameActive = true;
-      input.value = '';
-      rulesList.innerHTML = '';
-      timerDisplay.textContent = timeLeft;
-      timerBox.classList.remove('urgent');
-      overlay.style.display = 'none';
-      input.focus();
-      // Deal first 2 rules immediately, then 1 every 3.5 seconds
-      addNextRule();
-      addNextRule();
-      ruleInterval = setInterval(addNextRule, 3500);
-      gameInterval = setInterval(() => {
-        timeLeft--;
-        timerDisplay.textContent = timeLeft;
-        if (timeLeft <= 12) {
-          timerBox.classList.add('urgent');
-        }
-        if (timeLeft <= 0) {
-          endGame(false);
-        }
-      }, 1000);
-    }
-    function endGame(won) {
-      gameActive = false;
-      clearInterval(gameInterval);
-      clearInterval(ruleInterval);
-      if (won) {
-        modalTitle.textContent = '🎉 Account Created!';
-        modalTitle.style.color = '#4ade80';
-        modalDesc.innerHTML = `You cleared all 10 random rules with <strong>${timeLeft}s</strong> left!<br><br>Winning password:<br><strong>${input.value}</strong>`;
-      } else {
-        modalTitle.textContent = '⏰ Session Timed Out!';
-        modalTitle.style.color = '#f87171';
-        modalDesc.textContent = 'The security system locked you out before you could beat all 10 rules.';
-      }
-      startBtn.textContent = 'Play With New Random Rules';
-      overlay.style.display = 'flex';
-    }
-    input.addEventListener('input', validateAll);
-    submitBtn.addEventListener('click', () => {
-      if (!submitBtn.disabled && gameActive) {
-        endGame(true);
-      }
-    });
-    startBtn.addEventListener('click', startGame);
-  </script>
-</body>
-</html>
+
+
+
