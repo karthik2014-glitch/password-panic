@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -22,7 +22,7 @@
       padding: 20px;
     }
 
-    /* ================= STUDIO SPLASH SCREEN ================= */
+    /* ================= STUDIO SPLASH SCREEN (PURE CSS AUTO-FADE) ================= */
     #studio-splash {
       position: fixed;
       inset: 0;
@@ -33,15 +33,15 @@
       align-items: center;
       z-index: 99999;
       font-family: 'Courier New', Courier, monospace;
-      transition: opacity 0.5s ease, visibility 0.5s ease;
-      cursor: pointer; /* <-- ADDED */
+      animation: autoFadeSplash 0.6s ease forwards 2.3s;
     }
 
-
-    #studio-splash.fade-out {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none; /* <-- ADDED */
+    @keyframes autoFadeSplash {
+      to {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
     }
 
     #studio-splash::before {
@@ -100,7 +100,7 @@
       color: #38bdf8;
       text-transform: uppercase;
       opacity: 0;
-      animation: fadeInTagline 0.6s ease forwards 0.6s;
+      animation: fadeInTagline 0.6s ease forwards 0.5s;
     }
 
     .boot-bar {
@@ -116,7 +116,7 @@
       height: 100%;
       width: 0%;
       background: linear-gradient(90deg, #ff0055, #00f0ff);
-      animation: loadBar 2.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      animation: loadBar 2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
 
     @keyframes loadBar {
@@ -148,8 +148,8 @@
     .container {
       background: #1e2235;
       width: 100%;
-      max-width: 600px;
-      padding: 28px;
+      max-width: 820px;
+      padding: 26px;
       border-radius: 16px;
       box-shadow: 0 12px 35px rgba(0, 0, 0, 0.55);
       border: 2px solid #2e344e;
@@ -159,7 +159,9 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
     h1 {
@@ -178,7 +180,7 @@
       padding: 7px 14px;
       border-radius: 8px;
       font-weight: bold;
-      font-size: 1rem;
+      font-size: 0.95rem;
       color: #e2e8f0;
     }
 
@@ -226,30 +228,21 @@
     }
 
     #rules-list {
-      display: flex;
-      flex-direction: column;
-      gap: 9px;
-      margin-bottom: 22px;
-      max-height: 360px;
-      overflow-y: auto;
-      padding-right: 4px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
     }
 
     .rule {
-      padding: 11px 14px;
+      padding: 10px 12px;
       border-radius: 8px;
-      font-size: 0.92rem;
+      font-size: 0.88rem;
       font-weight: 500;
       display: flex;
       align-items: center;
-      gap: 10px;
-      transition: all 0.2s ease;
-      animation: slideDown 0.25s ease-out;
-    }
-
-    @keyframes slideDown {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
+      gap: 8px;
+      transition: background 0.15s ease, border-color 0.15s ease;
     }
 
     .rule.invalid {
@@ -361,7 +354,7 @@
         <label for="password-input">Type Your Password:</label>
         <span id="digit-sum-helper">Digit Sum: 0</span>
       </div>
-      <input type="text" id="password-input" placeholder="Start typing fast..." autocomplete="off">
+      <input type="text" id="password-input" placeholder="Start typing fast..." autocomplete="off" maxlength="100">
     </div>
 
     <div id="rules-list"></div>
@@ -378,19 +371,6 @@
   </div>
 
   <script>
-    const splash = document.getElementById('studio-splash');
-
-    function hideSplash() {
-      splash.classList.add('fade-out');
-      setTimeout(() => {
-        splash.style.display = 'none';
-      }, 500);
-    }
-
-    setTimeout(hideSplash, 2200);
-    splash.addEventListener('click', hideSplash);
-
-
     const input = document.getElementById('password-input');
     const rulesList = document.getElementById('rules-list');
     const submitBtn = document.getElementById('submit-btn');
@@ -412,17 +392,33 @@
     let gameActive = false;
 
     function getDigitSum(str) {
-      const digits = str.match(/\d/g);
-      if (!digits) return 0;
-return digits.reduce((sum, d) => sum + parseInt(d, 10), 0);
+      let sum = 0;
+      for (let i = 0; i < str.length; i++) {
+        const code = str.charCodeAt(i);
+        if (code >= 48 && code <= 57) {
+          sum += code - 48;
+        }
+      }
+      return sum;
+    }
+
+    function hasMatchingBrackets(str) {
+      const openParen = str.indexOf('(');
+      const closeParen = str.indexOf(')', openParen + 1);
+      if (openParen !== -1 && closeParen !== -1) return true;
+
+
+const openBrack = str.indexOf('[');
+const closeBrack = str.indexOf(']', openBrack + 1);
+return openBrack !== -1 && closeBrack !== -1;
 }
 const rulePool = [
 { id: 'len8', group: 'length', text: 'Must be at least 8 characters long', check: (v) => v.length >= 8 },
 { id: 'len12', group: 'length', text: 'Must be at least 12 characters long', check: (v) => v.length >= 12 },
 { id: 'lenEven', group: 'length', text: 'Total character count must be an EVEN number', check: (v) => v.length > 0 && v.length % 2 === 0 },
 { id: 'lenOdd', group: 'length', text: 'Total character count must be an ODD number', check: (v) => v.length % 2 === 1 },
-{ id: 'noSpaces', group: 'space', text: 'Cannot contain any spaces', check: (v) => v.length > 0 && !/\s/.test(v) },
-{ id: 'hasSpace', group: 'space', text: 'Must include at least one space', check: (v) => /\s/.test(v) },
+{ id: 'noSpaces', group: 'space', text: 'Cannot contain any spaces', check: (v) => v.length > 0 && !v.includes(' ') },
+{ id: 'hasSpace', group: 'space', text: 'Must include at least one space', check: (v) => v.includes(' ') },
 { id: 'twoUpper', group: 'case', text: 'Must contain at least 2 UPPERCASE letters', check: (v) => (v.match(/[A-Z]/g) || []).length >= 2 },
 { id: 'threeLower', group: 'case', text: 'Must contain at least 3 lowercase letters', check: (v) => (v.match(/[a-z]/g) || []).length >= 3 },
 { id: 'noZ', group: 'ban', text: 'Cannot contain the letter "Z" or "z"', check: (v) => !/z/i.test(v) },
@@ -432,10 +428,10 @@ const rulePool = [
 { id: 'sum10', group: 'math', text: 'All digits in your password must add up to 10', check: (v) => getDigitSum(v) === 10 },
 { id: 'sum15', group: 'math', text: 'All digits in your password must add up to 15', check: (v) => getDigitSum(v) === 15 },
 { id: 'sum20', group: 'math', text: 'All digits in your password must add up to 20', check: (v) => getDigitSum(v) === 20 },
-{ id: 'hasZero', group: 'digit', text: 'Must include the number 0', check: (v) => /0/.test(v) },
+{ id: 'hasZero', group: 'digit', text: 'Must include the number 0', check: (v) => v.includes('0') },
 { id: 'threeDigits', group: 'digit', text: 'Must contain at least 3 numbers', check: (v) => (v.match(/\d/g) || []).length >= 3 },
 { id: 'year2026', group: 'math', text: 'Must include the current year (2026)', check: (v) => v.includes('2026') },
-{ id: 'lucky7', group: 'digit', text: 'Must contain the lucky number 7', check: (v) => /7/.test(v) },
+{ id: 'lucky7', group: 'digit', text: 'Must contain the lucky number 7', check: (v) => v.includes('7') },
 { id: 'no123', group: 'ban', text: 'Cannot contain "123" in a row', check: (v) => !v.includes('123') },
 { id: 'twoSymbols', group: 'symbol', text: 'Must contain at least 2 special symbols (!@#$%^&)', check: (v) => (v.match(/[!@#$%^&]/g) || []).length >= 2 },
 { id: 'hasAt', group: 'symbol', text: 'Must include an @ symbol', check: (v) => v.includes('@') },
@@ -443,7 +439,7 @@ const rulePool = [
 { id: 'hasHash', group: 'symbol', text: 'Must include a # hashtag', check: (v) => v.includes('#') },
 { id: 'endBang', group: 'end', text: 'Must end with an exclamation mark (!)', check: (v) => v.endsWith('!') },
 { id: 'endQuestion', group: 'end', text: 'Must end with a question mark (?)', check: (v) => v.endsWith('?') },
-{ id: 'wrapBrackets', group: 'wrap', text: 'Must contain matching parentheses () or brackets []', check: (v) => /(\(.*\)|\(.*\))/.test(v) },
+{ id: 'wrapBrackets', group: 'wrap', text: 'Must contain matching parentheses () or brackets []', check: hasMatchingBrackets },
 { id: 'color', group: 'word', text: 'Must include a color (red, blue, green, gold, or pink)', check: (v) => /(red|blue|green|gold|pink)/i.test(v) },
 { id: 'animal', group: 'word', text: 'Must include an animal (cat, dog, fox, owl, or bear)', check: (v) => /(cat|dog|fox|owl|bear)/i.test(v) },
 { id: 'food', group: 'word', text: 'Must include a food (pizza, taco, cake, apple, or rice)', check: (v) => /(pizza|taco|cake|apple|rice)/i.test(v) },
@@ -479,18 +475,24 @@ const val = input.value;
 charCountDisplay.textContent = `Chars: ${val.length}`;
 digitSumHelper.textContent = `Digit Sum: ${getDigitSum(val)}`;
 let allPassed = true;
-activeRules.forEach((rule) => {
+for (let i = 0; i < activeRules.length; i++) {
+const rule = activeRules[i];
 const ruleEl = document.getElementById(`rule-${rule.id}`);
+if (!ruleEl) continue;
 const passed = rule.check(val);
 if (passed) {
+if (!ruleEl.classList.contains('valid')) {
 ruleEl.className = 'rule valid';
-ruleEl.innerHTML = `<span>✅</span> <span>${rule.text}</span>`;
+ruleEl.textContent = `✅ ${rule.text}`;
+}
 } else {
+if (!ruleEl.classList.contains('invalid')) {
 ruleEl.className = 'rule invalid';
-ruleEl.innerHTML = `<span>❌</span> <span>${rule.text}</span>`;
+ruleEl.textContent = `❌ ${rule.text}`;
+}
 allPassed = false;
 }
-});
+}
 if (allPassed && activeRules.length === roundRules.length) {
 submitBtn.disabled = false;
 submitBtn.classList.add('ready');
@@ -504,6 +506,7 @@ submitBtn.textContent = activeRules.length < roundRules.length
 }
 }
 function addNextRule() {
+if (!gameActive) return;
 if (activeRules.length >= roundRules.length) {
 clearInterval(ruleInterval);
 return;
@@ -512,65 +515,91 @@ const nextRule = roundRules[activeRules.length];
 activeRules.push(nextRule);
 const ruleEl = document.createElement('div');
 ruleEl.id = `rule-${nextRule.id}`;
-ruleEl.className = 'rule invalid';
-rulesList.prepend(ruleEl);
+ruleEl.className = 'rule';
+ruleEl.textContent = `Dealing rule: ${nextRule.text}...`;
+rulesList.appendChild(ruleEl);
 validateAll();
 }
 function startGame() {
-timeLeft = 60;
 roundRules = pickSolvableRules();
 activeRules = [];
-gameActive = true;
-input.value = '';
 rulesList.innerHTML = '';
+submitBtn.disabled = true;
+submitBtn.classList.remove('ready');
+submitBtn.textContent = 'Unlock All Rules First';
+timeLeft = 60;
 timerDisplay.textContent = timeLeft;
-timerBox.classList.remove('urgent');
-overlay.style.display = 'none';
-input.focus();
-addNextRule();
-addNextRule();
-ruleInterval = setInterval(addNextRule, 3500);
+gameActive = true;
+ruleInterval = setInterval(addNextRule, 2000);
 gameInterval = setInterval(() => {
 timeLeft--;
 timerDisplay.textContent = timeLeft;
-if (timeLeft <= 12) {
-timerBox.classList.add('urgent');
-}
 if (timeLeft <= 0) {
-endGame(false);
-}
-}, 1000);
-}
-function endGame(won) {
-gameActive = false;
 clearInterval(gameInterval);
 clearInterval(ruleInterval);
-if (won) {
-modalTitle.textContent = '🎉 Account Created!';
-modalTitle.style.color = '#4ade80';
-modalDesc.innerHTML = `You
-d all 10 random rules with <strong>${timeLeft}s</strong> left!<br><br>Winning password:<br><strong>${input.value}</strong><br><br><em>Glitched By Design</em>`;
-} else {
-modalTitle.textContent = '⏰ Session Timed Out!';
-modalTitle.style.color = '#f87171';
-modalDesc.innerHTML = `The security system locked you out before you could beat all 10 rules.<br><br><em>Glitched By Design</em>`;
+gameActive = false;
+submitBtn.disabled = true;
+submitBtn.classList.remove('ready');
+submitBtn.textContent = 'Time\'s up! Refresh to try again.';
 }
-startBtn.textContent = 'Play With New Random Rules';
-overlay.style.display = 'flex';
+}, 1000);
+overlay.style.display = 'none';
 }
 input.addEventListener('input', validateAll);
 submitBtn.addEventListener('click', () => {
-if (!submitBtn.disabled && gameActive) {
-endGame(true);
+if (submitBtn.classList.contains('ready')) {
+alert('Account created! (Just kidding, this is a demo.)');
 }
 });
 startBtn.addEventListener('click', startGame);
+  </script>
+</body>
+</html>
 
 
 
-<FollowUp>
-Want me to build an **official Glitched By Design Arcade Launcher** (`index.html`) next so you can put all three `.html` files in the same folder and launch any of them from one main studio menu?
-</FollowUp>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
