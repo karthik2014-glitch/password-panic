@@ -33,12 +33,15 @@
       align-items: center;
       z-index: 99999;
       font-family: 'Courier New', Courier, monospace;
-      transition: opacity 0.6s ease, visibility 0.6s ease;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+      cursor: pointer; /* <-- ADDED */
     }
+
 
     #studio-splash.fade-out {
       opacity: 0;
       visibility: hidden;
+      pointer-events: none; /* <-- ADDED */
     }
 
     #studio-splash::before {
@@ -375,11 +378,18 @@
   </div>
 
   <script>
-    window.addEventListener('load', () => {
+    const splash = document.getElementById('studio-splash');
+
+    function hideSplash() {
+      splash.classList.add('fade-out');
       setTimeout(() => {
-        document.getElementById('studio-splash').classList.add('fade-out');
-      }, 2600);
-    });
+        splash.style.display = 'none';
+      }, 500);
+    }
+
+    setTimeout(hideSplash, 2200);
+    splash.addEventListener('click', hideSplash);
+
 
     const input = document.getElementById('password-input');
     const rulesList = document.getElementById('rules-list');
